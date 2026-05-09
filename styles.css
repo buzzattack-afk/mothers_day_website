@@ -285,6 +285,116 @@ body {
 }
 
 /* ==========================================================
+   Engagement: like button + visitor count
+   ========================================================== */
+.engagement {
+  margin: 1.6rem auto 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.engagement-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.95rem;
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  background: rgba(15, 11, 8, 0.55);
+  border: 1px solid rgba(233, 199, 133, 0.22);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  user-select: none;
+}
+.engagement-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: var(--gold-soft);
+  transition: fill 200ms ease, transform 220ms ease;
+}
+.engagement-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--ink);
+  transition: color 200ms ease;
+}
+.engagement-label {
+  color: var(--ink-mute);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+/* Like button: clickable */
+.engagement-pill--like {
+  appearance: none;
+  cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, transform 220ms ease;
+}
+.engagement-pill--like:hover,
+.engagement-pill--like:focus-visible {
+  background: rgba(233, 199, 133, 0.10);
+  border-color: rgba(233, 199, 133, 0.55);
+  outline: none;
+}
+.engagement-pill--like:active { transform: scale(0.97); }
+
+.engagement-pill--like.is-liked {
+  background: rgba(220, 70, 90, 0.18);
+  border-color: rgba(232, 110, 120, 0.6);
+}
+.engagement-pill--like.is-liked .engagement-icon {
+  fill: #ec5e6a;
+  filter: drop-shadow(0 0 6px rgba(236, 94, 106, 0.55));
+}
+.engagement-pill--like.is-liked .engagement-count {
+  color: #fbe9c5;
+}
+
+/* Pulse / "+1" cue when a like is registered */
+@keyframes like-pulse {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  70%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+.engagement-pill--like.just-liked .engagement-icon {
+  animation: like-pulse 600ms ease-out;
+}
+.engagement-pill--like .floater {
+  position: absolute;
+  pointer-events: none;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: #ec5e6a;
+  text-shadow: 0 0 8px rgba(0,0,0,0.6);
+  opacity: 0;
+  transform: translateY(0);
+  animation: floater-up 900ms ease-out forwards;
+}
+.engagement-pill--like { position: relative; overflow: visible; }
+@keyframes floater-up {
+  0%   { opacity: 0;   transform: translateY(0); }
+  20%  { opacity: 1;   transform: translateY(-6px); }
+  100% { opacity: 0;   transform: translateY(-28px); }
+}
+
+/* When the visitor count animates */
+.engagement-count.bump {
+  animation: count-bump 700ms ease-out;
+  color: #fbe9c5;
+}
+@keyframes count-bump {
+  0%   { transform: translateY(0) scale(1); }
+  40%  { transform: translateY(-2px) scale(1.12); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ==========================================================
    "Read the story" link
    ========================================================== */
 .story-link {

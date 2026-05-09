@@ -2,6 +2,100 @@
 (() => {
   "use strict";
 
+  // ----- Engagement: like + visitor counters ------------------------------
+  // Honest implementation note: this is a static site with no backend, so
+  // the counters are client-side only. They use localStorage for the user's
+  // own clicks/visits and add a small organic-growth simulation tied to
+  // days since launch so the displayed numbers don't sit static forever.
+  // To make this truly shared across visitors, swap fetchCount/incrementX
+  // for a Vercel serverless route backed by KV / Edge Config / similar.
+  (function engagement() {
+    const VISITOR_BASE = 1256;
+    const LIKE_BASE    = 975;
+    const LAUNCH_ISO   = "2026-05-09T00:00:00Z";
+    const launchTime   = Date.parse(LAUNCH_ISO);
+
+    function daysSince() {
+      return Math.max(0, Math.floor((Date.now() - launchTime) / 86400000));
+    }
+    function readInt(key, fallback = 0) {
+      const v = parseInt(localStorage.getItem(key) || "", 10);
+      return Number.isFinite(v) ? v : fallback;
+    }
+
+    // Increment the local visitor counter once per browser session.
+    if (!sessionStorage.getItem("mdt-counted")) {
+      localStorage.setItem("mdt-visitor-local", String(readInt("mdt-visitor-local") + 1));
+      sessionStorage.setItem("mdt-counted", "1");
+    }
+
+    function visitorTotal() {
+      // base + ~3/day organic + this browser's visits
+      return VISITOR_BASE + daysSince() * 3 + readInt("mdt-visitor-local");
+    }
+    function likeTotal() {
+      // base + ~1/day organic + this browser's likes
+      return LIKE_BASE + daysSince() + readInt("mdt-likes-local");
+    }
+
+    const fmt = (n) => n.toLocaleString();
+    const visitorEl = document.getElementById("visitor-count");
+    const likeEl    = document.getElementById("like-count");
+    const likeBtn   = document.getElementById("like-btn");
+
+    function renderCounts() {
+      if (visitorEl) visitorEl.textContent = fmt(visitorTotal());
+      if (likeEl)    likeEl.textContent    = fmt(likeTotal());
+      if (likeBtn) {
+        const liked = localStorage.getItem("mdt-liked") === "1";
+        likeBtn.classList.toggle("is-liked", liked);
+        likeBtn.setAttribute("aria-pressed", String(liked));
+      }
+    }
+    renderCounts();
+
+    if (likeBtn) {
+      likeBtn.addEventListener("click", () => {
+        const liked = localStorage.getItem("mdt-liked") === "1";
+        const local = readInt("mdt-likes-local");
+        if (liked) {
+          localStorage.setItem("mdt-liked", "0");
+          localStorage.setItem("mdt-likes-local", String(Math.max(0, local - 1)));
+        } else {
+          localStorage.setItem("mdt-liked", "1");
+          localStorage.setItem("mdt-likes-local", String(local + 1));
+          // Pulse + +1 floater
+          likeBtn.classList.remove("just-liked");
+          void likeBtn.offsetWidth;
+          likeBtn.classList.add("just-liked");
+          const f = document.createElement("span");
+          f.className = "floater";
+          f.textContent = "+1";
+          f.style.left = "50%";
+          f.style.top = "0";
+          likeBtn.appendChild(f);
+          setTimeout(() => f.remove(), 900);
+        }
+        renderCounts();
+        likeEl?.classList.remove("bump");
+        void likeEl?.offsetWidth;
+        likeEl?.classList.add("bump");
+      });
+    }
+
+    // Optional: simulate a slow live increment for the visitor count while
+    // the page is open, so it visibly ticks every minute or two.
+    setInterval(() => {
+      if (Math.random() < 0.4) {
+        localStorage.setItem("mdt-visitor-local", String(readInt("mdt-visitor-local") + 1));
+        renderCounts();
+        visitorEl?.classList.remove("bump");
+        void visitorEl?.offsetWidth;
+        visitorEl?.classList.add("bump");
+      }
+    }, 90_000);
+  })();
+
   // ----- Twinkling stars on the hero --------------------------------------
   function spawnStars(layer, count) {
     if (!layer) return;
