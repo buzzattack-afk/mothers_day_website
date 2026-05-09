@@ -394,6 +394,23 @@
   ];
   let thunderCtx = null;
   let thunderStarted = false;
+  let thunderMuted  = localStorage.getItem("mdt-thunder-muted") === "1";
+
+  const thunderMuteBtn = document.getElementById("thunder-mute");
+  if (thunderMuteBtn) {
+    const paintMute = () => {
+      thunderMuteBtn.setAttribute("aria-pressed", String(thunderMuted));
+      thunderMuteBtn.setAttribute("aria-label", thunderMuted ? "Unmute thunder" : "Mute thunder");
+      thunderMuteBtn.title = thunderMuted ? "Thunder muted (click to unmute)" : "Mute thunder";
+      thunderMuteBtn.classList.toggle("is-muted", thunderMuted);
+    };
+    paintMute();
+    thunderMuteBtn.addEventListener("click", () => {
+      thunderMuted = !thunderMuted;
+      localStorage.setItem("mdt-thunder-muted", thunderMuted ? "1" : "0");
+      paintMute();
+    });
+  }
 
   function ensureThunderCtx() {
     if (thunderCtx) {
@@ -408,7 +425,7 @@
     } catch { return null; }
   }
   function canPlayThunder() {
-    return audio.paused && (!tributeModal || tributeModal.hidden);
+    return !thunderMuted && audio.paused && (!tributeModal || tributeModal.hidden);
   }
   function thunderJitter() { return (Math.random() * 0.06) - 0.03; }
 
