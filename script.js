@@ -2,6 +2,28 @@
 (() => {
   "use strict";
 
+  // ----- Twinkling stars on the hero --------------------------------------
+  function spawnStars(layer, count) {
+    if (!layer) return;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const star = document.createElement("span");
+      star.className = "star";
+      const size = (1 + Math.random() * 2.2).toFixed(2);
+      star.style.setProperty("--size", size + "px");
+      star.style.setProperty("--dur", (2.4 + Math.random() * 4.5).toFixed(2) + "s");
+      star.style.setProperty("--delay", (Math.random() * 6).toFixed(2) + "s");
+      star.style.left = (Math.random() * 100).toFixed(2) + "%";
+      star.style.top  = (Math.random() * 100).toFixed(2) + "%";
+      frag.appendChild(star);
+    }
+    layer.appendChild(frag);
+  }
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduced) {
+    spawnStars(document.querySelector(".stars-layer"), 70);
+  }
+
   const audio       = document.getElementById("tribute");
   const beginBtn    = document.getElementById("begin");
   const muteBtn     = document.getElementById("mute");

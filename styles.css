@@ -129,7 +129,98 @@ body {
     linear-gradient(180deg, #100a06 0%, #07050300 100%);
 }
 
-.hero-inner { max-width: 42rem; }
+.hero-inner { max-width: 42rem; position: relative; z-index: 3; }
+
+/* ----- Twinkling stars layer ----- */
+.stars-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  width: var(--size, 2px);
+  height: var(--size, 2px);
+  border-radius: 50%;
+  background: #fff8e3;
+  box-shadow: 0 0 6px rgba(255, 235, 190, 0.8), 0 0 14px rgba(255, 215, 140, 0.35);
+  opacity: 0;
+  animation: twinkle var(--dur, 3.5s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: opacity, transform;
+}
+.star::after {
+  /* tiny cross-glint on bigger stars */
+  content: "";
+  position: absolute;
+  inset: 50% 50% 50% 50%;
+  width: 0;
+  height: 0;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  45%, 55% { opacity: 1;    transform: scale(1.25); }
+}
+
+/* ----- Soft warm lightning ----- */
+.lightning-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: transparent;
+  mix-blend-mode: screen;
+  animation: lightning 17s linear infinite;
+  will-change: opacity, background;
+}
+.lightning-layer::before,
+.lightning-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.lightning-layer::before {
+  /* main flash, top-right */
+  background: radial-gradient(ellipse at 78% 12%, rgba(255, 240, 200, 0.85) 0%, rgba(255, 220, 150, 0.35) 25%, transparent 55%);
+  animation: lightning-flash-a 17s linear infinite;
+}
+.lightning-layer::after {
+  /* secondary, more distant from top-left */
+  background: radial-gradient(ellipse at 18% 30%, rgba(255, 235, 200, 0.55) 0%, rgba(255, 215, 150, 0.2) 25%, transparent 50%);
+  animation: lightning-flash-b 17s linear infinite;
+  animation-delay: 8.4s;
+}
+@keyframes lightning-flash-a {
+  0%, 14%, 100% { opacity: 0; }
+  15%           { opacity: 0.85; }
+  15.5%         { opacity: 0.05; }
+  16%           { opacity: 0.55; }
+  17%           { opacity: 0; }
+  /* second strike halfway */
+  44%           { opacity: 0; }
+  45%           { opacity: 0.7; }
+  45.5%         { opacity: 0.1; }
+  46%           { opacity: 0.4; }
+  47%           { opacity: 0; }
+}
+@keyframes lightning-flash-b {
+  0%, 32%, 100% { opacity: 0; }
+  33%           { opacity: 0.55; }
+  33.6%         { opacity: 0.05; }
+  34%           { opacity: 0.30; }
+  35%           { opacity: 0; }
+}
+@keyframes lightning {
+  /* a faint global wash that pulses with the strikes for cohesion */
+  0%, 100% { background: transparent; }
+  15%, 16% { background: rgba(255, 235, 190, 0.05); }
+  45%, 46% { background: rgba(255, 235, 190, 0.04); }
+}
 
 .hero-eyebrow {
   font-family: var(--sans);
@@ -474,6 +565,23 @@ body {
 }
 .scene.active { opacity: 1; }
 
+.scene-motion {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+  will-change: transform;
+}
+.scene.active .scene-motion {
+  animation: breathe-rock 14s ease-in-out infinite;
+}
+@keyframes breathe-rock {
+  0%   { transform: scale(1.00) rotate(0deg); }
+  25%  { transform: scale(1.035) rotate(0.6deg); }   /* breathe IN, rotate clockwise */
+  50%  { transform: scale(1.015) rotate(0deg); }
+  75%  { transform: scale(1.035) rotate(-0.6deg); }  /* breathe IN, rotate anti-clockwise */
+  100% { transform: scale(1.00) rotate(0deg); }
+}
+
 .scene img {
   position: absolute;
   inset: 0;
@@ -798,7 +906,12 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .scene img,
-  .scene .overlay {
+  .scene .overlay,
+  .scene-motion,
+  .star,
+  .lightning-layer,
+  .lightning-layer::before,
+  .lightning-layer::after {
     animation: none !important;
     transform: none !important;
   }
