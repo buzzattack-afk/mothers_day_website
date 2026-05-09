@@ -380,6 +380,111 @@
     decay();
   });
 
+  // ----- Atmospheric thunder, synced to the lightning visuals ----------
+  // Each 17s lightning cycle has three flashes at ~2.55s, ~7.65s, ~14.01s.
+  // Real thunder lags lightning by 1.5-2.5s (sound is slower than light),
+  // so we fire claps a moment after each visual strike. Synthesised in
+  // the browser via Web Audio (brown noise -> low-pass -> envelope) so
+  // there's no asset to ship and no network call.
+  const lightningStartTime = performance.now();
+  const STRIKE_TIMINGS = [
+    { delayMs: 4000,  volume: 0.30 }, // main strike at 2.55s + ~1.5s sound lag
+    { delayMs: 9500,  volume: 0.18 }, // secondary at 7.65s + ~1.85s lag
+    { delayMs: 16100, volume: 0.22 }, // distant strike at 14.01s + ~2s lag
+  ];
+  let thunderCtx = null;
+  let thunderStarted = false;
+
+  function ensureThunderCtx() {
+    if (thunderCtx) {
+      if (thunderCtx.state === "suspended") thunderCtx.resume().catch(() => {});
+      return thunderCtx;
+    }
+    try {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      thunderCtx = new C();
+      return thunderCtx;
+    } catch { return null; }
+  }
+  function canPlayThunder() {
+    return audio.paused && (!tributeModal || tributeModal.hidden);
+  }
+  function thunderJitter() { return (Math.random() * 0.06) - 0.03; }
+
+  function synthesizeThunder(volume) {
+    const ctx = ensureThunderCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const duration = 3.5 + Math.random() * 2.0;
+
+    // Brown noise via low-pass random walk -- mostly low-frequency energy.
+    const len = Math.floor(ctx.sampleRate * duration);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) {
+      last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+      data[i] = last * 3.5;
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+
+    // Low-pass that closes over the duration -> sounds like the rumble
+    // is rolling away into the distance.
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(220 + Math.random() * 60, now);
+    lp.frequency.exponentialRampToValueAtTime(45, now + duration);
+    lp.Q.value = 0.7;
+
+    // Soft attack, slow tail.
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(volume,        now + 0.55);
+    gain.gain.linearRampToValueAtTime(volume * 0.55, now + duration * 0.45);
+    gain.gain.exponentialRampToValueAtTime(0.0001,   now + duration);
+
+    src.connect(lp).connect(gain).connect(ctx.destination);
+    src.start(now);
+    src.stop(now + duration + 0.05);
+  }
+
+  function fireStrike(volBase) {
+    if (canPlayThunder() && !reduced) {
+      synthesizeThunder(volBase + thunderJitter());
+    }
+  }
+
+  function scheduleCycleFromZero() {
+    STRIKE_TIMINGS.forEach((s) => setTimeout(() => fireStrike(s.volume), s.delayMs));
+  }
+
+  function startThunderSyncOnce() {
+    if (thunderStarted) return;
+    thunderStarted = true;
+    ensureThunderCtx();
+    // Catch the remaining strikes in this current 17s lightning cycle.
+    const intoCycle = (performance.now() - lightningStartTime) % 17000;
+    STRIKE_TIMINGS.forEach((s) => {
+      if (s.delayMs > intoCycle) {
+        setTimeout(() => fireStrike(s.volume), s.delayMs - intoCycle);
+      }
+    });
+    // Hand off to a steady cycle aligned to the lightning loop.
+    setTimeout(() => {
+      scheduleCycleFromZero();
+      setInterval(scheduleCycleFromZero, 17000);
+    }, 17000 - intoCycle);
+  }
+
+  if (!reduced) {
+    ["pointerdown", "keydown", "touchstart"].forEach((evt) => {
+      document.addEventListener(evt, startThunderSyncOnce, { once: true, passive: true });
+    });
+  }
+
   // ----- Time-driven cues ----------------------------------------------
   audio.addEventListener("timeupdate", () => {
     applyCueAt(audio.currentTime);
