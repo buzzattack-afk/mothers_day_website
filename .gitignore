@@ -9,6 +9,9 @@ ehthumbs.db
 Desktop.ini
 .DS_Store
 
+# Local-only artifacts (kept on disk, never published)
+_local/
+
 # Editor / tooling
 .claude/
 .vscode/
