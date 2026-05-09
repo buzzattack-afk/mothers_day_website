@@ -70,7 +70,7 @@ body {
 }
 
 /* ==========================================================
-   Site footer (hero only)
+   Site footer (hero only) — Made-by credit + email
    ========================================================== */
 .site-footer {
   position: absolute;
@@ -82,6 +82,10 @@ body {
   font-size: clamp(0.7rem, 1.1vw, 0.8rem);
   color: var(--ink-mute);
   letter-spacing: 0.04em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
 }
 .site-footer p { margin: 0; }
 .site-footer a {
@@ -95,6 +99,72 @@ body {
   color: #fbe9c5;
   border-bottom-color: rgba(251, 233, 197, 0.85);
   outline: none;
+}
+
+/* Made-by Bruce Svenson pill */
+.made-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.3rem 1rem 0.3rem 0.3rem;
+  background: rgba(15, 11, 8, 0.55);
+  border: 1px solid rgba(233, 199, 133, 0.25);
+  border-radius: 999px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(233, 199, 133, 0.25); /* override .site-footer a dotted */
+  transition: background 220ms ease, border-color 220ms ease, transform 220ms ease;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.made-by:hover,
+.made-by:focus-visible {
+  background: rgba(233, 199, 133, 0.10);
+  border-color: rgba(233, 199, 133, 0.6);
+  transform: translateY(-1px);
+}
+.made-by-photo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #2b2017;
+  flex: none;
+  box-shadow: 0 0 0 1px rgba(233, 199, 133, 0.35), 0 4px 14px -2px rgba(0,0,0,0.5);
+}
+.made-by-text {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+  text-align: left;
+}
+.made-by-label {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.made-by-name {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--gold);
+  font-weight: 500;
+}
+.made-by-fb {
+  width: 16px;
+  height: 16px;
+  fill: rgba(233, 199, 133, 0.7);
+  flex: none;
+  margin-left: 0.15rem;
+}
+.made-by:hover .made-by-fb,
+.made-by:focus-visible .made-by-fb {
+  fill: #fbe9c5;
+}
+
+.site-footer-email {
+  font-size: 0.72rem;
 }
 
 /* Small credit line on the closing card */

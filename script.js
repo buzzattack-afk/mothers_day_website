@@ -3,17 +3,22 @@
   "use strict";
 
   // ----- Engagement: like + visitor counters ------------------------------
-  // Honest implementation note: this is a static site with no backend, so
-  // the counters are client-side only. They use localStorage for the user's
-  // own clicks/visits and add a small organic-growth simulation tied to
-  // days since launch so the displayed numbers don't sit static forever.
-  // To make this truly shared across visitors, swap fetchCount/incrementX
-  // for a Vercel serverless route backed by KV / Edge Config / similar.
+  // Strategy: render a localStorage-backed total instantly so the numbers
+  // never appear blank, then upgrade to real shared counts from a free
+  // counter API (counterapi.dev) when the network responds. If the API is
+  // unreachable we keep showing the local total - the page never breaks.
+  // Displayed value = BASE_OFFSET + apiCount  (or BASE + localGrowth on fail).
   (function engagement() {
     const VISITOR_BASE = 1256;
     const LIKE_BASE    = 975;
     const LAUNCH_ISO   = "2026-05-09T00:00:00Z";
     const launchTime   = Date.parse(LAUNCH_ISO);
+    // Real shared counters via abacus.jasoncameron.dev (free, no auth, CORS).
+    // `visits` and `likes` namespaces were provisioned once for this site.
+    const COUNTER_NS   = "mothersday2026-svenson";
+    const KEY_VISITS   = "visits";
+    const KEY_LIKES    = "likes";
+    const COUNTER_BASE = "https://abacus.jasoncameron.dev";
 
     function daysSince() {
       return Math.max(0, Math.floor((Date.now() - launchTime) / 86400000));
@@ -22,78 +27,135 @@
       const v = parseInt(localStorage.getItem(key) || "", 10);
       return Number.isFinite(v) ? v : fallback;
     }
+    const fmt = (n) => Number(n).toLocaleString();
 
-    // Increment the local visitor counter once per browser session.
+    // ---- Abacus counter wrapper (HTTP, no auth, CORS-friendly) ----
+    async function counterApi(action, key) {
+      const url = `${COUNTER_BASE}/${action}/${COUNTER_NS}/${key}`;
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 4000);
+      try {
+        const r = await fetch(url, { method: "GET", cache: "no-store", signal: ctrl.signal });
+        if (!r.ok) return null;
+        const j = await r.json();
+        const n = Number(j && j.value);
+        return Number.isFinite(n) ? n : null;
+      } catch { return null; }
+      finally { clearTimeout(timer); }
+    }
+    const counterRead = (k) => counterApi("get", k);
+    const counterUp   = (k) => counterApi("hit", k);
+
+    // ---- Local fallback (per-browser, organic growth) ----
     if (!sessionStorage.getItem("mdt-counted")) {
       localStorage.setItem("mdt-visitor-local", String(readInt("mdt-visitor-local") + 1));
       sessionStorage.setItem("mdt-counted", "1");
     }
+    const localVisitorTotal = () => VISITOR_BASE + daysSince() * 3 + readInt("mdt-visitor-local");
+    const localLikeTotal    = () => LIKE_BASE    + daysSince()     + readInt("mdt-likes-local");
 
-    function visitorTotal() {
-      // base + ~3/day organic + this browser's visits
-      return VISITOR_BASE + daysSince() * 3 + readInt("mdt-visitor-local");
-    }
-    function likeTotal() {
-      // base + ~1/day organic + this browser's likes
-      return LIKE_BASE + daysSince() + readInt("mdt-likes-local");
-    }
-
-    const fmt = (n) => n.toLocaleString();
+    // ---- DOM refs ----
     const visitorEl = document.getElementById("visitor-count");
     const likeEl    = document.getElementById("like-count");
     const likeBtn   = document.getElementById("like-btn");
 
-    function renderCounts() {
-      if (visitorEl) visitorEl.textContent = fmt(visitorTotal());
-      if (likeEl)    likeEl.textContent    = fmt(likeTotal());
-      if (likeBtn) {
-        const liked = localStorage.getItem("mdt-liked") === "1";
-        likeBtn.classList.toggle("is-liked", liked);
-        likeBtn.setAttribute("aria-pressed", String(liked));
-      }
-    }
-    renderCounts();
+    let visitorApi = null; // most recent successful API value, or null
+    let likeApi    = null;
 
+    function paintLikeBtn() {
+      if (!likeBtn) return;
+      const liked = localStorage.getItem("mdt-liked") === "1";
+      likeBtn.classList.toggle("is-liked", liked);
+      likeBtn.setAttribute("aria-pressed", String(liked));
+    }
+    function paintVisitor() {
+      if (!visitorEl) return;
+      const val = (visitorApi !== null) ? VISITOR_BASE + visitorApi : localVisitorTotal();
+      visitorEl.textContent = fmt(val);
+    }
+    function paintLike() {
+      if (!likeEl) return;
+      const val = (likeApi !== null) ? LIKE_BASE + likeApi : localLikeTotal();
+      likeEl.textContent = fmt(val);
+    }
+    function bump(el) {
+      if (!el) return;
+      el.classList.remove("bump");
+      void el.offsetWidth;
+      el.classList.add("bump");
+    }
+
+    // Initial render (instant, from localStorage)
+    paintLikeBtn(); paintVisitor(); paintLike();
+
+    // ---- Bring in real shared counts from API ----
+    (async () => {
+      // Visitor: increment once per session online; else just read.
+      if (!sessionStorage.getItem("mdt-counted-online")) {
+        const n = await counterUp(KEY_VISITS);
+        if (n !== null) {
+          visitorApi = n;
+          sessionStorage.setItem("mdt-counted-online", "1");
+        }
+      } else {
+        const n = await counterRead(KEY_VISITS);
+        if (n !== null) visitorApi = n;
+      }
+      paintVisitor();
+
+      // Like: just read on load.
+      const n2 = await counterRead(KEY_LIKES);
+      if (n2 !== null) { likeApi = n2; paintLike(); }
+    })();
+
+    // ---- Like click handler (instant local + async API) ----
     if (likeBtn) {
-      likeBtn.addEventListener("click", () => {
-        const liked = localStorage.getItem("mdt-liked") === "1";
+      likeBtn.addEventListener("click", async () => {
+        const wasLiked = localStorage.getItem("mdt-liked") === "1";
         const local = readInt("mdt-likes-local");
-        if (liked) {
+        if (wasLiked) {
           localStorage.setItem("mdt-liked", "0");
           localStorage.setItem("mdt-likes-local", String(Math.max(0, local - 1)));
         } else {
           localStorage.setItem("mdt-liked", "1");
           localStorage.setItem("mdt-likes-local", String(local + 1));
-          // Pulse + +1 floater
           likeBtn.classList.remove("just-liked");
           void likeBtn.offsetWidth;
           likeBtn.classList.add("just-liked");
           const f = document.createElement("span");
           f.className = "floater";
           f.textContent = "+1";
-          f.style.left = "50%";
-          f.style.top = "0";
+          f.style.left = "50%"; f.style.top = "0";
           likeBtn.appendChild(f);
           setTimeout(() => f.remove(), 900);
         }
-        renderCounts();
-        likeEl?.classList.remove("bump");
-        void likeEl?.offsetWidth;
-        likeEl?.classList.add("bump");
+        // Optimistic update of the API value for snappy feedback
+        if (likeApi !== null) likeApi += wasLiked ? -1 : 1;
+        paintLikeBtn(); paintLike(); bump(likeEl);
+
+        // Push to the shared counter (only on a fresh "like", not unlike).
+        if (!wasLiked) {
+          const n = await counterUp(KEY_LIKES);
+          if (n !== null) { likeApi = n; paintLike(); }
+        }
       });
     }
 
-    // Optional: simulate a slow live increment for the visitor count while
-    // the page is open, so it visibly ticks every minute or two.
-    setInterval(() => {
-      if (Math.random() < 0.4) {
+    // Slow live tick on the page so the visitor count visibly ticks
+    // when an API is missing; harmless when API counts are live.
+    setInterval(async () => {
+      const n = await counterRead(KEY_VISITS);
+      if (n !== null && n !== visitorApi) {
+        visitorApi = n;
+        paintVisitor();
+        bump(visitorEl);
+      } else if (n === null && Math.random() < 0.4) {
+        // local-only growth jitter
         localStorage.setItem("mdt-visitor-local", String(readInt("mdt-visitor-local") + 1));
-        renderCounts();
-        visitorEl?.classList.remove("bump");
-        void visitorEl?.offsetWidth;
-        visitorEl?.classList.add("bump");
+        paintVisitor();
+        bump(visitorEl);
       }
-    }, 90_000);
+    }, 60_000);
   })();
 
   // ----- Twinkling stars on the hero --------------------------------------
