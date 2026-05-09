@@ -35,6 +35,84 @@ body {
 #app { position: relative; width: 100vw; height: 100vh; height: 100dvh; }
 
 /* ==========================================================
+   AI banner (top, always visible)
+   ========================================================== */
+.ai-banner {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-top: clamp(0.6rem, 1.6vh, 1.1rem);
+  padding: 0.45em 1.2em;
+  font-family: var(--sans);
+  font-size: clamp(0.65rem, 1.1vw, 0.78rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(10, 7, 5, 0.55);
+  border: 1px solid rgba(233, 199, 133, 0.30);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.ai-banner-dot {
+  color: var(--gold-soft);
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+/* ==========================================================
+   Site footer (hero only)
+   ========================================================== */
+.site-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(0.9rem, 2.5vh, 1.6rem);
+  text-align: center;
+  font-family: var(--sans);
+  font-size: clamp(0.7rem, 1.1vw, 0.8rem);
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+}
+.site-footer p { margin: 0; }
+.site-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(233, 199, 133, 0.45);
+  transition: color 200ms ease, border-color 200ms ease;
+}
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  color: #fbe9c5;
+  border-bottom-color: rgba(251, 233, 197, 0.85);
+  outline: none;
+}
+
+/* Small credit line on the closing card */
+.closing-credit {
+  margin: 1.6rem 0 0 0;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.closing-credit a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(233, 199, 133, 0.45);
+}
+.closing-credit a:hover { color: #fbe9c5; }
+
+/* ==========================================================
    Hero
    ========================================================== */
 .hero {
