@@ -2,17 +2,18 @@
 (() => {
   "use strict";
 
-  const audio    = document.getElementById("tribute");
-  const beginBtn = document.getElementById("begin");
-  const muteBtn  = document.getElementById("mute");
-  const replayBtn= document.getElementById("replay");
-  const hero     = document.getElementById("hero");
-  const stage    = document.getElementById("stage");
-  const closing  = document.getElementById("closing");
-  const capEnEl  = document.querySelector(".caption-en");
-  const capTlEl  = document.querySelector(".caption-tl");
-  const scenes   = Array.from(document.querySelectorAll(".scene"));
-  const cues     = (window.CUES || []).slice().sort((a, b) => a.time - b.time);
+  const audio       = document.getElementById("tribute");
+  const beginBtn    = document.getElementById("begin");
+  const muteBtn     = document.getElementById("mute");
+  const replayBtn   = document.getElementById("replay");
+  const hero        = document.getElementById("hero");
+  const stage       = document.getElementById("stage");
+  const closing     = document.getElementById("closing");
+  const tributeModal= document.getElementById("tribute-modal");
+  const capEnEl     = document.querySelector(".caption-en");
+  const capTlEl     = document.querySelector(".caption-tl");
+  const scenes      = Array.from(document.querySelectorAll(".scene"));
+  const cues        = (window.CUES || []).slice().sort((a, b) => a.time - b.time);
 
   let activeCueIdx = -1;
   let activeSceneNum = 0;
@@ -67,11 +68,39 @@
     setCaption(cue.en, cue.tl);
   }
 
+  // ----- Tribute modal --------------------------------------------------
+  function openTributeModal() {
+    if (!tributeModal) return;
+    tributeModal.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    muteBtn.hidden = false;
+    stage.setAttribute("aria-hidden", "false");
+  }
+
+  function closeTributeModal() {
+    if (!tributeModal || tributeModal.hidden) return;
+    audio.pause();
+    tributeModal.hidden = true;
+    document.documentElement.style.overflow = "";
+    stage.setAttribute("aria-hidden", "true");
+    closing.classList.remove("show");
+    closing.setAttribute("aria-hidden", "true");
+    // Reset scenes so next open starts clean
+    scenes.forEach((s) => s.classList.remove("active"));
+    activeSceneNum = 0;
+    activeCueIdx = -1;
+    capEnEl.classList.remove("show");
+    capTlEl.classList.remove("show");
+    if (beginBtn && typeof beginBtn.focus === "function") beginBtn.focus();
+  }
+
+  document.querySelectorAll("[data-close-tribute]").forEach((el) => {
+    el.addEventListener("click", closeTributeModal);
+  });
+
   // ----- Begin / replay -------------------------------------------------
   function startTribute() {
-    hero.classList.add("hidden");
-    stage.setAttribute("aria-hidden", "false");
-    muteBtn.hidden = false;
+    openTributeModal();
     closing.classList.remove("show");
     closing.setAttribute("aria-hidden", "true");
     activeCueIdx = -1;
@@ -123,19 +152,18 @@
   // ----- Keyboard convenience ------------------------------------------
   document.addEventListener("keydown", (e) => {
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-    if (e.key === "Escape" && !storyModal.hidden) {
-      e.preventDefault();
-      closeStory();
-      return;
+    if (e.key === "Escape") {
+      if (storyModal && !storyModal.hidden) { e.preventDefault(); closeStory(); return; }
+      if (tributeModal && !tributeModal.hidden) { e.preventDefault(); closeTributeModal(); return; }
     }
     if (e.key === " " || e.code === "Space") {
-      // Only intercept Space if the tribute has begun
-      if (!hero.classList.contains("hidden")) return;
+      // Only intercept Space if the tribute is open
+      if (!tributeModal || tributeModal.hidden) return;
       e.preventDefault();
       if (audio.paused) audio.play().catch(() => {});
       else audio.pause();
     } else if (e.key.toLowerCase() === "m") {
-      muteBtn.click();
+      if (!muteBtn.hidden) muteBtn.click();
     }
   });
 
