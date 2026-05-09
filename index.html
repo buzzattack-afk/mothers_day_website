@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mothers Make It Happen — A Mother's Day Tribute</title>
+  <meta name="description" content="A cinematic Mother's Day tribute honouring every mother, grandmother, and woman of faith. Spoken-word in English and Tagalog." />
+  <meta name="theme-color" content="#0a0705" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="hero" class="hero" aria-label="Welcome">
+      <div class="hero-inner">
+        <p class="hero-eyebrow">A Mother's Day Tribute</p>
+        <h1 class="hero-title">Mothers Make It Happen</h1>
+        <p class="hero-sub">A spoken-word offering of gratitude, in English and Tagalog. <br/>With sound — please use speakers or headphones.</p>
+        <button id="begin" class="begin-btn" type="button">Begin Tribute</button>
+        <p class="hero-meta">Approx. 6 minutes &middot; All glory to God</p>
+      </div>
+    </section>
+
+    <section id="stage" class="stage" aria-hidden="true">
+      <figure class="scene" data-scene="1">
+        <img src="assets/images/scene-1-praying.png" alt="A mother standing at a dining table with her hands resting on her family's shoulders, eyes closed in prayer, warm golden light through the window." />
+        <div class="overlay overlay-glow" aria-hidden="true"></div>
+      </figure>
+      <figure class="scene" data-scene="2">
+        <img src="assets/images/scene-2-holding-hand.png" alt="A mother holding her child's hand while walking through a quiet garden path at sunrise." />
+        <div class="overlay overlay-flare" aria-hidden="true"></div>
+      </figure>
+      <figure class="scene" data-scene="3">
+        <img src="assets/images/scene-3-three-generations.png" alt="A grandmother, mother, and child standing together in a warm home setting." />
+        <div class="overlay overlay-shimmer" aria-hidden="true"></div>
+      </figure>
+      <figure class="scene" data-scene="4">
+        <img src="assets/images/scene-4-heart-of-home.png" alt="A mother preparing a family table while loved ones gather softly in the background, warm home lighting." />
+        <div class="overlay overlay-flicker" aria-hidden="true"></div>
+      </figure>
+      <figure class="scene" data-scene="5">
+        <img src="assets/images/scene-5-faith-filled.png" alt="A mother near a window with her hands over her heart, a Bible on a nearby table, soft morning light." />
+        <div class="overlay overlay-rays" aria-hidden="true"></div>
+      </figure>
+
+      <div id="captions" class="captions" aria-live="polite">
+        <p class="caption-en"></p>
+        <p class="caption-tl"></p>
+      </div>
+    </section>
+
+    <section id="closing" class="closing" aria-hidden="true">
+      <div class="closing-inner">
+        <p class="closing-line">All glory to God.</p>
+        <p class="closing-line closing-line--small">Thank You, Jesus.</p>
+        <p class="closing-tl">Salamat sa Diyos. Salamat, Hesus.</p>
+        <button id="replay" class="replay-btn" type="button">Play again</button>
+      </div>
+    </section>
+
+    <button id="mute" class="mute-btn" type="button" aria-label="Mute audio" aria-pressed="false" hidden>
+      <span class="mute-icon" aria-hidden="true">&#x1F50A;</span>
+    </button>
+  </main>
+
+  <audio id="tribute" src="assets/audio/tribute.mp3" preload="auto"></audio>
+  <script src="cues.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

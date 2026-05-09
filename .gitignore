@@ -1,0 +1,22 @@
+# Original source audio (kept locally; the repo ships the MP3 conversion at assets/audio/tribute.mp3)
+mothers day 2.wav
+mothers day 2.mp3
+*.wav
+
+# OS junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor / tooling
+.claude/
+.vscode/
+.idea/
+*.swp
+*.tmp
+*.log
+
+# Node (defensive — no build is required, but in case anyone adds one)
+node_modules/
+package-lock.json

@@ -1,0 +1,475 @@
+/* ==========================================================
+   Mother's Day Tribute — cinematic single-page styles
+   ========================================================== */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+:root {
+  --bg: #0a0705;
+  --bg-deep: #060403;
+  --ink: #f6ecd9;
+  --ink-soft: rgba(246, 236, 217, 0.78);
+  --ink-mute: rgba(246, 236, 217, 0.56);
+  --gold: #e9c785;
+  --gold-soft: #c9a560;
+  --serif: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --sans:  "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fade: 1500ms;
+}
+
+html, body { height: 100%; margin: 0; padding: 0; }
+
+body {
+  background: radial-gradient(ellipse at center, #15100c 0%, var(--bg) 55%, var(--bg-deep) 100%);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#app { position: relative; width: 100vw; height: 100vh; height: 100dvh; }
+
+/* ==========================================================
+   Hero
+   ========================================================== */
+.hero {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+  z-index: 30;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(233, 199, 133, 0.10) 0%, transparent 60%),
+    linear-gradient(180deg, #100a06 0%, #07050300 100%);
+  transition: opacity 1200ms ease, visibility 0s linear 0s;
+}
+.hero.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1200ms ease, visibility 0s linear 1200ms;
+}
+
+.hero-inner { max-width: 42rem; }
+
+.hero-eyebrow {
+  font-family: var(--sans);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+  color: var(--gold);
+  margin: 0 0 1.4rem 0;
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  margin: 0 0 1.4rem 0;
+  background: linear-gradient(180deg, #fbe9c5 0%, #d8b27c 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--ink-soft);
+  max-width: 34rem;
+  margin: 0 auto 2.4rem auto;
+}
+
+.begin-btn {
+  appearance: none;
+  border: 1px solid rgba(233, 199, 133, 0.55);
+  background: linear-gradient(180deg, rgba(233, 199, 133, 0.18), rgba(233, 199, 133, 0.06));
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.95em 2.4em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 220ms ease, background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+  box-shadow: 0 0 0 0 rgba(233, 199, 133, 0.25);
+}
+.begin-btn:hover,
+.begin-btn:focus-visible {
+  background: linear-gradient(180deg, rgba(233, 199, 133, 0.28), rgba(233, 199, 133, 0.12));
+  border-color: rgba(233, 199, 133, 0.85);
+  box-shadow: 0 0 0 8px rgba(233, 199, 133, 0.10);
+  transform: translateY(-1px);
+  outline: none;
+}
+.begin-btn:active { transform: translateY(0); }
+
+.hero-meta {
+  margin: 1.6rem 0 0 0;
+  color: var(--ink-mute);
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================
+   Stage + scenes
+   ========================================================== */
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  background: #000;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transition: opacity var(--fade) ease;
+  pointer-events: none;
+  will-change: opacity;
+}
+.scene.active { opacity: 1; }
+
+.scene img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: center;
+  will-change: transform, filter;
+}
+
+/* Cinematic vignette + warmth pass over every scene */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%),
+    linear-gradient(180deg, rgba(20,10,4,0.10) 0%, rgba(20,10,4,0.30) 100%);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 12;
+}
+
+/* ----- Scene 1 — Mother praying: slow push-in + warm glow pulse ----- */
+.scene[data-scene="1"].active img {
+  animation: scene1-pushin 70s ease-out forwards;
+}
+.scene[data-scene="1"] .overlay-glow {
+  background: radial-gradient(ellipse at 60% 40%, rgba(255, 200, 120, 0.35) 0%, rgba(255, 180, 90, 0.15) 35%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+.scene[data-scene="1"].active .overlay-glow {
+  animation: glow-pulse 9s ease-in-out infinite;
+}
+@keyframes scene1-pushin {
+  from { transform: scale(1.00); }
+  to   { transform: scale(1.10); }
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.65; }
+}
+
+/* ----- Scene 2 — Holding hand: forward push + sunrise flare growth ----- */
+.scene[data-scene="2"].active img {
+  animation: scene2-forward 70s ease-out forwards;
+}
+.scene[data-scene="2"] .overlay-flare {
+  background: radial-gradient(circle at 18% 28%, rgba(255, 220, 150, 0.0) 0%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 1;
+}
+.scene[data-scene="2"].active .overlay-flare {
+  animation: scene2-flare 70s ease-out forwards;
+}
+@keyframes scene2-forward {
+  from { transform: scale(1.00) translateY(0); }
+  to   { transform: scale(1.10) translateY(-2%); }
+}
+@keyframes scene2-flare {
+  0%   { background: radial-gradient(circle at 18% 28%, rgba(255, 220, 150, 0.10) 0%, transparent 30%); }
+  100% { background: radial-gradient(circle at 18% 28%, rgba(255, 220, 150, 0.55) 0%, rgba(255, 220, 150, 0.20) 25%, transparent 60%); }
+}
+
+/* ----- Scene 3 — Three generations: camera rise + parallax shimmer ----- */
+.scene[data-scene="3"].active img {
+  animation: scene3-rise 70s ease-out forwards;
+}
+.scene[data-scene="3"] .overlay-shimmer {
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 235, 195, 0.18) 50%, transparent 70%);
+  mix-blend-mode: screen;
+  background-size: 220% 220%;
+  opacity: 0;
+}
+.scene[data-scene="3"].active .overlay-shimmer {
+  animation: scene3-shimmer 12s ease-in-out infinite, shimmer-fadein 2s ease forwards;
+}
+@keyframes scene3-rise {
+  from { transform: translateY(2%) scale(1.04); }
+  to   { transform: translateY(0)  scale(1.00); }
+}
+@keyframes scene3-shimmer {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+@keyframes shimmer-fadein {
+  to { opacity: 0.9; }
+}
+
+/* ----- Scene 4 — Heart of home: slow pan + candle flicker ----- */
+.scene[data-scene="4"].active img {
+  animation: scene4-pan 70s ease-in-out forwards, scene4-flicker 6s steps(1, end) infinite;
+}
+.scene[data-scene="4"] .overlay-flicker {
+  background: radial-gradient(ellipse at 70% 55%, rgba(255, 170, 90, 0.30) 0%, transparent 55%);
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+.scene[data-scene="4"].active .overlay-flicker {
+  animation: candle-flicker 1.4s steps(1, end) infinite;
+}
+@keyframes scene4-pan {
+  from { transform: translateX(-2.2%) scale(1.04); }
+  to   { transform: translateX( 2.2%) scale(1.04); }
+}
+@keyframes scene4-flicker {
+  0%, 100% { filter: brightness(1.00); }
+  10%      { filter: brightness(1.06); }
+  17%      { filter: brightness(0.96); }
+  22%      { filter: brightness(1.04); }
+  60%      { filter: brightness(1.00); }
+  72%      { filter: brightness(0.97); }
+  82%      { filter: brightness(1.05); }
+}
+@keyframes candle-flicker {
+  0%   { opacity: 0.62; }
+  20%  { opacity: 0.78; }
+  35%  { opacity: 0.55; }
+  55%  { opacity: 0.72; }
+  70%  { opacity: 0.60; }
+  100% { opacity: 0.70; }
+}
+
+/* ----- Scene 5 — Faith-filled: slow zoom + sweeping light rays ----- */
+.scene[data-scene="5"].active img {
+  animation: scene5-zoom 80s ease-out forwards;
+}
+.scene[data-scene="5"] .overlay-rays {
+  background:
+    linear-gradient(105deg, transparent 38%, rgba(255, 230, 180, 0.10) 50%, transparent 62%),
+    linear-gradient(115deg, transparent 42%, rgba(255, 230, 180, 0.06) 55%, transparent 68%);
+  mix-blend-mode: screen;
+  background-size: 200% 200%, 240% 240%;
+  opacity: 0;
+}
+.scene[data-scene="5"].active .overlay-rays {
+  animation: rays-sweep 16s linear infinite, rays-fadein 2s ease forwards;
+}
+@keyframes scene5-zoom {
+  from { transform: scale(1.00); }
+  to   { transform: scale(1.12); }
+}
+@keyframes rays-sweep {
+  0%   { background-position: 0% 0%, 100% 100%; }
+  100% { background-position: 100% 100%, 0% 0%; }
+}
+@keyframes rays-fadein {
+  to { opacity: 1; }
+}
+
+/* ==========================================================
+   Captions
+   ========================================================== */
+.captions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(2.5rem, 7vh, 5rem);
+  padding: 0 clamp(1.25rem, 5vw, 4rem);
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.caption-en,
+.caption-tl {
+  margin: 0 auto;
+  max-width: 52rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 800ms ease, transform 800ms ease;
+}
+
+.caption-en {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  line-height: 1.35;
+  color: var(--ink);
+  letter-spacing: 0.005em;
+}
+
+.caption-tl {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1rem, 1.7vw, 1.35rem);
+  line-height: 1.35;
+  color: var(--gold);
+  margin-top: 0.7rem;
+}
+
+.caption-en.show,
+.caption-tl.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================
+   Closing card
+   ========================================================== */
+.closing {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+  z-index: 25;
+  background: radial-gradient(ellipse at center, rgba(20, 10, 4, 0.5) 0%, rgba(6, 4, 3, 0.92) 75%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1500ms ease, visibility 0s linear 1500ms;
+}
+.closing.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1500ms ease, visibility 0s linear 0s;
+}
+
+.closing-line {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  line-height: 1.1;
+  margin: 0;
+  background: linear-gradient(180deg, #fbe9c5 0%, #d8b27c 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+.closing-line--small {
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  margin-top: 0.6rem;
+  font-style: italic;
+}
+.closing-tl {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--gold);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  margin: 1.4rem 0 0 0;
+  letter-spacing: 0.01em;
+}
+
+.replay-btn {
+  margin-top: 2.2rem;
+  appearance: none;
+  border: 1px solid rgba(233, 199, 133, 0.55);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.85em 2em;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 220ms ease, border-color 220ms ease;
+}
+.replay-btn:hover,
+.replay-btn:focus-visible {
+  background: rgba(233, 199, 133, 0.14);
+  border-color: rgba(233, 199, 133, 0.85);
+  outline: none;
+}
+
+/* ==========================================================
+   Mute button
+   ========================================================== */
+.mute-btn {
+  position: absolute;
+  right: clamp(1rem, 2.5vw, 2rem);
+  bottom: clamp(1rem, 2.5vw, 2rem);
+  z-index: 40;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(246, 236, 217, 0.25);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--ink);
+  font-size: 18px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: opacity 300ms ease, background 220ms ease, border-color 220ms ease;
+}
+.mute-btn:hover,
+.mute-btn:focus-visible {
+  background: rgba(0, 0, 0, 0.65);
+  border-color: rgba(246, 236, 217, 0.55);
+  outline: none;
+}
+.mute-btn[aria-pressed="true"] .mute-icon::after {
+  content: " ✕";
+  font-size: 12px;
+  color: var(--gold);
+}
+.mute-btn[hidden] { display: none !important; }
+
+/* ==========================================================
+   Responsive tweaks
+   ========================================================== */
+@media (max-width: 540px) {
+  .captions { bottom: clamp(1.6rem, 5vh, 3rem); }
+  .caption-en { line-height: 1.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene img,
+  .scene .overlay {
+    animation: none !important;
+    transform: none !important;
+  }
+  .caption-en,
+  .caption-tl {
+    transition: opacity 200ms ease;
+    transform: none;
+  }
+}
