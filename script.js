@@ -123,6 +123,11 @@
   // ----- Keyboard convenience ------------------------------------------
   document.addEventListener("keydown", (e) => {
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "Escape" && !storyModal.hidden) {
+      e.preventDefault();
+      closeStory();
+      return;
+    }
     if (e.key === " " || e.code === "Space") {
       // Only intercept Space if the tribute has begun
       if (!hero.classList.contains("hidden")) return;
@@ -132,5 +137,44 @@
     } else if (e.key.toLowerCase() === "m") {
       muteBtn.click();
     }
+  });
+
+  // ----- Story modal ----------------------------------------------------
+  const storyModal = document.getElementById("story-modal");
+  const storyCard  = storyModal && storyModal.querySelector(".story-card");
+  const storyClose = document.getElementById("story-close");
+  let lastFocus = null;
+  let wasPlayingBeforeStory = false;
+
+  function openStory() {
+    if (!storyModal) return;
+    lastFocus = document.activeElement;
+    wasPlayingBeforeStory = !audio.paused;
+    if (wasPlayingBeforeStory) audio.pause();
+    storyModal.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    // Reset scroll to top each time
+    requestAnimationFrame(() => {
+      if (storyCard) storyCard.scrollTop = 0;
+      if (storyClose) storyClose.focus();
+    });
+  }
+
+  function closeStory() {
+    if (!storyModal || storyModal.hidden) return;
+    storyModal.hidden = true;
+    document.documentElement.style.overflow = "";
+    if (wasPlayingBeforeStory) {
+      audio.play().catch(() => {});
+      wasPlayingBeforeStory = false;
+    }
+    if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+  }
+
+  document.querySelectorAll("[data-open-story]").forEach((el) => {
+    el.addEventListener("click", openStory);
+  });
+  document.querySelectorAll("[data-close-story]").forEach((el) => {
+    el.addEventListener("click", closeStory);
   });
 })();

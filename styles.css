@@ -199,6 +199,199 @@ body {
 }
 
 /* ==========================================================
+   "Read the story" link
+   ========================================================== */
+.story-link {
+  appearance: none;
+  background: transparent;
+  border: none;
+  margin: 1.4rem auto 0 auto;
+  display: inline-block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  color: var(--gold);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  padding: 0.4em 0.8em;
+  border-radius: 999px;
+  transition: color 200ms ease, background 200ms ease;
+}
+.story-link:hover,
+.story-link:focus-visible {
+  color: #fbe9c5;
+  background: rgba(233, 199, 133, 0.08);
+  outline: none;
+}
+.story-link--closing { margin-top: 1.6rem; color: var(--ink-soft); }
+.story-link--closing:hover { color: var(--gold); }
+
+/* ==========================================================
+   Story modal
+   ========================================================== */
+.story-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+.story-modal:not([hidden]) { opacity: 1; }
+.story-modal[hidden] { display: none; }
+
+.story-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(20, 10, 4, 0.78) 0%, rgba(6, 4, 3, 0.94) 80%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.story-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 44rem);
+  max-height: calc(100dvh - clamp(1.5rem, 6vw, 4rem));
+  overflow-y: auto;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(233, 199, 133, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #15100c 0%, #0d0907 100%);
+  color: var(--ink);
+  border: 1px solid rgba(233, 199, 133, 0.22);
+  border-radius: 14px;
+  padding: clamp(1.4rem, 4vw, 2.6rem) clamp(1.2rem, 4vw, 2.6rem);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0,0,0,0.4) inset;
+  scroll-behavior: smooth;
+  transform: translateY(8px);
+  transition: transform 360ms ease;
+}
+.story-modal:not([hidden]) .story-card { transform: translateY(0); }
+
+/* Custom scrollbar inside the card */
+.story-card::-webkit-scrollbar { width: 8px; }
+.story-card::-webkit-scrollbar-thumb { background: rgba(233, 199, 133, 0.25); border-radius: 4px; }
+.story-card::-webkit-scrollbar-track { background: transparent; }
+
+.story-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(246, 236, 217, 0.20);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+.story-close:hover,
+.story-close:focus-visible {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(233, 199, 133, 0.7);
+  outline: none;
+}
+
+.story-header {
+  text-align: center;
+  margin: 0.5rem 0 1.6rem 0;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(233, 199, 133, 0.18);
+}
+.story-eyebrow {
+  font-family: var(--sans);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--gold);
+  margin: 0 0 0.6rem 0;
+}
+.story-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  line-height: 1.15;
+  margin: 0;
+  background: linear-gradient(180deg, #fbe9c5 0%, #d8b27c 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+.story-body {
+  font-family: var(--serif);
+  font-size: clamp(1.02rem, 1.5vw, 1.18rem);
+  line-height: 1.62;
+  color: var(--ink);
+}
+.story-body p {
+  margin: 0 0 1.05em 0;
+}
+.story-body strong {
+  font-weight: 600;
+  color: #fbe9c5;
+}
+.story-body em {
+  color: var(--gold);
+  font-style: italic;
+}
+
+/* Rhythmic short lines — tighter spacing, slightly muted */
+.story-beat {
+  margin: 0 0 0.35em 0 !important;
+  color: var(--ink-soft);
+}
+.story-beat + p:not(.story-beat) { margin-top: 1.2em; }
+
+.story-coda {
+  margin-top: 1.6em !important;
+  font-style: italic;
+  color: var(--gold);
+  font-size: 1.05em;
+}
+
+.story-final {
+  margin-top: 2em !important;
+  text-align: center;
+  font-style: italic;
+  font-size: 1.15em;
+  color: #fbe9c5;
+  padding-top: 1.2em;
+  border-top: 1px solid rgba(233, 199, 133, 0.18);
+}
+
+.story-footer {
+  margin-top: 1.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(233, 199, 133, 0.18);
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--ink-mute);
+  line-height: 1.5;
+}
+.story-footer p { margin: 0.2rem 0; }
+.story-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(233, 199, 133, 0.45);
+}
+.story-footer a:hover { color: #fbe9c5; }
+
+@media (max-width: 540px) {
+  .story-title { font-size: 1.5rem; }
+  .story-body { font-size: 1rem; }
+}
+
+/* ==========================================================
    Stage + scenes
    ========================================================== */
 .stage {

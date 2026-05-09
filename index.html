@@ -26,6 +26,7 @@
         <p class="hero-sub">A spoken-word offering of gratitude, in English and Tagalog. <br/>With sound — please use speakers or headphones.</p>
         <button id="begin" class="begin-btn" type="button">Begin Tribute</button>
         <p class="hero-meta">Approx. 6 minutes &middot; All glory to God</p>
+        <button class="story-link" type="button" data-open-story>Read the story behind this tribute &rsaquo;</button>
       </div>
       <footer class="site-footer">
         <p>Created with love by <a href="mailto:bruce@digitaldestinypro.com">bruce@digitaldestinypro.com</a></p>
@@ -66,6 +67,7 @@
         <p class="closing-line closing-line--small">Thank You, Jesus.</p>
         <p class="closing-tl">Salamat sa Diyos. Salamat, Hesus.</p>
         <button id="replay" class="replay-btn" type="button">Play again</button>
+        <button class="story-link story-link--closing" type="button" data-open-story>Read the story behind this tribute &rsaquo;</button>
         <p class="closing-credit">100&#37; AI created &middot; <a href="mailto:bruce@digitaldestinypro.com">bruce@digitaldestinypro.com</a></p>
       </div>
     </section>
@@ -74,6 +76,84 @@
       <span class="mute-icon" aria-hidden="true">&#x1F50A;</span>
     </button>
   </main>
+
+  <div id="story-modal" class="story-modal" role="dialog" aria-modal="true" aria-labelledby="story-title" hidden>
+    <div class="story-backdrop" data-close-story aria-hidden="true"></div>
+    <article class="story-card" tabindex="-1">
+      <button id="story-close" class="story-close" type="button" aria-label="Close story" data-close-story>&#x2715;</button>
+      <header class="story-header">
+        <p class="story-eyebrow">Behind the page</p>
+        <h2 id="story-title" class="story-title">The Story Behind This Tribute</h2>
+      </header>
+      <div class="story-body">
+        <p>This Mother’s Day tribute was created by <strong>Bruce Svenson</strong> from <em>Digital Destiny Pro</em> as a love letter, a thank you, and a public honouring of mothers everywhere.</p>
+
+        <p>Everything you see and hear on this page was created with AI.</p>
+        <p class="story-beat">The pictures.</p>
+        <p class="story-beat">The music.</p>
+        <p class="story-beat">The spoken tribute.</p>
+        <p class="story-beat">The atmosphere.</p>
+        <p class="story-beat">The emotion.</p>
+
+        <p>But behind the technology is something deeply human.</p>
+        <p class="story-beat">A husband giving honour to his wife.</p>
+        <p class="story-beat">A son-in-law giving honour to his mother-in-law.</p>
+        <p class="story-beat">A father giving thanks for the woman who helps carry his family.</p>
+        <p class="story-beat">And a man using the tools God has placed in his hands to say, <em>“Thank you.”</em></p>
+
+        <p>This tribute was created for Bruce’s wife, <strong>Lydia</strong>, the mother of their son, <strong>Reign</strong>. It was also created for Lydia’s mother, <strong>Leticia</strong>, Reign’s grandmother, and for every mother, grandmother, wife, daughter, and woman across the world who continues to love, pray, sacrifice, and keep going.</p>
+
+        <p>Lydia and her family are from the <strong>Philippines</strong>, and from the beginning, they welcomed Bruce with open arms. They did not treat him like an outsider. They brought him in. They made him family.</p>
+
+        <p class="story-beat">That kind of love leaves a mark.</p>
+        <p class="story-beat">That kind of love changes a life.</p>
+
+        <p>Through many difficult years, including seasons of major depression and PTSD, Lydia stood beside Bruce. She supported him. She carried weight that many people never saw. She prayed, loved, encouraged, and stayed steady when life was not easy.</p>
+
+        <p>As Bruce learned marketing, built new skills, studied AI, and began creating Digital Destiny Pro, Lydia was there.</p>
+        <p class="story-beat">Behind the dream.</p>
+        <p class="story-beat">Behind the late nights.</p>
+        <p class="story-beat">Behind the learning.</p>
+        <p class="story-beat">Behind the rebuilding.</p>
+        <p class="story-beat">Behind the launch.</p>
+
+        <p class="story-beat">She has been part of the foundation.</p>
+        <p class="story-beat">She has been part of the strength.</p>
+        <p class="story-beat">She has been the backbone that helped make it possible.</p>
+
+        <p>This page is not just about AI.</p>
+        <p class="story-beat">It is about honour.</p>
+        <p class="story-beat">It is about family.</p>
+        <p class="story-beat">It is about faith.</p>
+        <p class="story-beat">It is about using modern tools to express timeless gratitude.</p>
+
+        <p>Because AI may have helped create the images and the music, but love gave it meaning.</p>
+        <p class="story-beat">Faith gave it direction.</p>
+        <p class="story-beat">And God gave Bruce the people worth honouring.</p>
+
+        <p>So today, this tribute says thank you.</p>
+        <p class="story-beat">Thank you to Lydia.</p>
+        <p class="story-beat">Thank you to Leticia.</p>
+        <p class="story-beat">Thank you to mothers in the Philippines, in Australia, and across the world.</p>
+        <p class="story-beat">Thank you to the women who carry families.</p>
+        <p class="story-beat">Thank you to the women who build homes.</p>
+        <p class="story-beat">Thank you to the women who pray in silence.</p>
+        <p class="story-beat">Thank you to the women who sacrifice without applause.</p>
+        <p class="story-beat">Thank you to the women who keep going by the grace of God.</p>
+
+        <p class="story-coda">Mahal namin kayo.</p>
+        <p class="story-beat">We love you.</p>
+        <p class="story-beat">We honour you.</p>
+        <p class="story-beat">We thank God for you.</p>
+
+        <p class="story-final">All glory to God. Thank You, Jesus.</p>
+      </div>
+      <footer class="story-footer">
+        <p>— Bruce Svenson, <em>Digital Destiny Pro</em></p>
+        <p><a href="mailto:bruce@digitaldestinypro.com">bruce@digitaldestinypro.com</a></p>
+      </footer>
+    </article>
+  </div>
 
   <audio id="tribute" src="assets/audio/tribute.mp3" preload="auto"></audio>
   <script src="cues.js"></script>
