@@ -148,6 +148,72 @@
     });
   }
 
+  // ----- Audio-reactive scene pulse (drives --audio-pulse CSS variable) -
+  let audioCtx = null;
+  let analyser = null;
+  let dataArr = null;
+  let pulseRaf = 0;
+  let smoothedPulse = 0;
+  const root = document.documentElement;
+
+  function initAudioReactive() {
+    if (audioCtx) return;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      audioCtx = new Ctx();
+      const src = audioCtx.createMediaElementSource(audio);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.72;
+      src.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      dataArr = new Uint8Array(analyser.frequencyBinCount);
+    } catch (err) {
+      console.warn("AudioContext init failed; pulse disabled.", err);
+      audioCtx = null;
+      analyser = null;
+    }
+  }
+
+  function pulseTick() {
+    if (!analyser || audio.paused) return;
+    analyser.getByteFrequencyData(dataArr);
+    let sum = 0;
+    for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+    const avg = (sum / dataArr.length) / 255; // 0..1
+    // Emphasize peaks with sqrt and lift the floor so quiet sections
+    // still breathe a little.
+    const intensity = Math.min(1, Math.sqrt(avg) * 1.15);
+    smoothedPulse = smoothedPulse * 0.78 + intensity * 0.22;
+    root.style.setProperty("--audio-pulse", smoothedPulse.toFixed(3));
+    pulseRaf = requestAnimationFrame(pulseTick);
+  }
+
+  audio.addEventListener("play", () => {
+    initAudioReactive();
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    cancelAnimationFrame(pulseRaf);
+    pulseRaf = requestAnimationFrame(pulseTick);
+  });
+  audio.addEventListener("pause", () => {
+    cancelAnimationFrame(pulseRaf);
+    // Decay smoothly back to 0 over ~600ms
+    let p = smoothedPulse;
+    const decay = () => {
+      p *= 0.85;
+      if (p < 0.005) {
+        smoothedPulse = 0;
+        root.style.setProperty("--audio-pulse", "0");
+        return;
+      }
+      smoothedPulse = p;
+      root.style.setProperty("--audio-pulse", p.toFixed(3));
+      requestAnimationFrame(decay);
+    };
+    decay();
+  });
+
   // ----- Time-driven cues ----------------------------------------------
   audio.addEventListener("timeupdate", () => {
     applyCueAt(audio.currentTime);

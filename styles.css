@@ -565,21 +565,52 @@ body {
 }
 .scene.active { opacity: 1; }
 
+/* Scene motion is split across two nested elements so the transforms
+   compose naturally (single-element transforms with custom properties
+   in calc() don't always recompute reliably across browsers).
+   - .scene-motion handles scale (baseline breathe + audio-reactive pulse)
+   - .scene-rock   handles rotation (clockwise then anti-clockwise rocking)
+   --audio-pulse is JS-driven from AnalyserNode loudness so the zoom
+   syncs to the song's dynamic build-ups. */
+@property --breathe {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+:root { --audio-pulse: 0; }
+
 .scene-motion {
   position: absolute;
   inset: 0;
   transform-origin: center;
   will-change: transform;
+  /* Baseline breathe gives the picture life when audio is paused.
+     Audio-pulse drives the deeper, song-synced zoom while playing. */
+  transform: scale(calc(1 + var(--breathe) * 0.06 + var(--audio-pulse) * 0.18));
+  transition: transform 50ms linear;
 }
 .scene.active .scene-motion {
-  animation: breathe-rock 14s ease-in-out infinite;
+  animation: breathe-cycle 9s ease-in-out infinite;
 }
-@keyframes breathe-rock {
-  0%   { transform: scale(1.00) rotate(0deg); }
-  25%  { transform: scale(1.035) rotate(0.6deg); }   /* breathe IN, rotate clockwise */
-  50%  { transform: scale(1.015) rotate(0deg); }
-  75%  { transform: scale(1.035) rotate(-0.6deg); }  /* breathe IN, rotate anti-clockwise */
-  100% { transform: scale(1.00) rotate(0deg); }
+@keyframes breathe-cycle {
+  0%, 100% { --breathe: 0; }
+  50%      { --breathe: 1; }
+}
+
+.scene-rock {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+  will-change: transform;
+}
+.scene.active .scene-rock {
+  animation: rock-cycle 12s ease-in-out infinite;
+}
+@keyframes rock-cycle {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(1deg); }   /* clockwise tilt */
+  50%      { transform: rotate(0deg); }
+  75%      { transform: rotate(-1deg); }  /* anti-clockwise tilt */
 }
 
 .scene img {
@@ -908,6 +939,7 @@ body {
   .scene img,
   .scene .overlay,
   .scene-motion,
+  .scene-rock,
   .star,
   .lightning-layer,
   .lightning-layer::before,
