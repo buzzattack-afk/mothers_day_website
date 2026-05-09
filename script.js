@@ -320,8 +320,10 @@
       audioCtx = new Ctx();
       const src = audioCtx.createMediaElementSource(audio);
       analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 128;
-      analyser.smoothingTimeConstant = 0.72;
+      // Larger FFT + heavier built-in smoothing => more stable readings,
+      // fewer per-frame jumps that translate into visible jerk.
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.86;
       src.connect(analyser);
       analyser.connect(audioCtx.destination);
       dataArr = new Uint8Array(analyser.frequencyBinCount);
@@ -335,14 +337,22 @@
   function pulseTick() {
     if (!analyser || audio.paused) return;
     analyser.getByteFrequencyData(dataArr);
+    // Focus on the lower-mid band (voice + music body) and skip the
+    // very top bins, which contain mostly hiss and add noise to the
+    // amplitude estimate.
+    const usable = Math.floor(dataArr.length * 0.6);
     let sum = 0;
-    for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
-    const avg = (sum / dataArr.length) / 255; // 0..1
-    // Emphasize peaks with sqrt and lift the floor so quiet sections
-    // still breathe a little.
-    const intensity = Math.min(1, Math.sqrt(avg) * 1.15);
-    smoothedPulse = smoothedPulse * 0.78 + intensity * 0.22;
-    root.style.setProperty("--audio-pulse", smoothedPulse.toFixed(3));
+    for (let i = 0; i < usable; i++) sum += dataArr[i];
+    const avg = (sum / usable) / 255; // 0..1
+    // Soft compression of peaks; gentle floor.
+    const intensity = Math.min(1, Math.sqrt(avg) * 1.10);
+    // Heavy exponential smoothing -- responds over ~10-15 frames so the
+    // motion eases between audio peaks rather than tracking each syllable.
+    const target = intensity;
+    const alpha  = (target > smoothedPulse) ? 0.10 : 0.06; // attack faster than release
+    smoothedPulse = smoothedPulse + (target - smoothedPulse) * alpha;
+    // Clamp per-frame change so a sudden loud transient cannot snap.
+    root.style.setProperty("--audio-pulse", smoothedPulse.toFixed(4));
     pulseRaf = requestAnimationFrame(pulseTick);
   }
 

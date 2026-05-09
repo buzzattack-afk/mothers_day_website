@@ -840,12 +840,15 @@ body {
   transform-origin: center;
   will-change: transform;
   /* Baseline breathe gives the picture life when audio is paused.
-     Audio-pulse drives the deeper, song-synced zoom while playing. */
-  transform: scale(calc(1 + var(--breathe) * 0.06 + var(--audio-pulse) * 0.18));
-  transition: transform 50ms linear;
+     Audio-pulse drives the song-synced zoom while playing. The transition
+     and the JS-side smoothing together iron out frame-to-frame jitter. */
+  transform: scale(calc(1 + var(--breathe) * 0.07 + var(--audio-pulse) * 0.13));
+  transition: transform 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 .scene.active .scene-motion {
-  animation: breathe-cycle 9s ease-in-out infinite;
+  animation: breathe-cycle 13s ease-in-out infinite;
 }
 @keyframes breathe-cycle {
   0%, 100% { --breathe: 0; }
@@ -857,9 +860,10 @@ body {
   inset: 0;
   transform-origin: center;
   will-change: transform;
+  backface-visibility: hidden;
 }
 .scene.active .scene-rock {
-  animation: rock-cycle 12s ease-in-out infinite;
+  animation: rock-cycle 18s ease-in-out infinite;
 }
 @keyframes rock-cycle {
   0%, 100% { transform: rotate(0deg); }
